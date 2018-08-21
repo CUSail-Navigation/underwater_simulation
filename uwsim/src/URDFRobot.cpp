@@ -102,6 +102,7 @@ URDFRobot::URDFRobot(osgOcean::OceanScene *oscene, Vehicle vehicle) :
 
     if (!vehicle.links[i].material.empty())
     { //Add material if exists
+    	std::cerr<<"\n not empty material!";
       osg::ref_ptr < osg::StateSet > stateset = new osg::StateSet();
       osg::ref_ptr < osg::Material > material = new osg::Material();
       material->setDiffuse(
@@ -116,6 +117,7 @@ URDFRobot::URDFRobot(osgOcean::OceanScene *oscene, Vehicle vehicle) :
       }
       link[i]->setStateSet(stateset);
     }
+
   }
 
   bool success = true;
@@ -161,7 +163,6 @@ URDFRobot::URDFRobot(osgOcean::OceanScene *oscene, Vehicle vehicle) :
 
       linkBaseTransforms[i] = new osg::MatrixTransform;
       linkBaseTransforms[i]->setMatrix(linkBase);
-      link[i]->getOrCreateStateSet()->setMode(GL_NORMALIZE, osg::StateAttribute::ON);
       linkBaseTransforms[i]->addChild(link[i]);
 
       //linkBase.invert(linkPost);

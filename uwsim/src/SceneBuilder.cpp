@@ -54,6 +54,7 @@ bool SceneBuilder::loadScene(std::string xml_file)
  */
 bool SceneBuilder::loadScene(ConfigFile config)
 {
+  std::cerr<<"\n ############ Starting loading scene file!\n";
   float windx = config.windx, windy = config.windy;
   while (arguments->read("--windx", windx))
     ;
@@ -64,6 +65,12 @@ bool SceneBuilder::loadScene(ConfigFile config)
   float windSpeed = config.windSpeed;
   while (arguments->read("--windSpeed", windSpeed))
     ;
+  ros::NodeHandle nh;
+  osg::Vec2f windWithValue = osg::Vec2f(windx,windy);
+  windWithValue.normalize();
+
+  nh.setParam("/uwsim/wind/x", windSpeed*windWithValue.x());
+  nh.setParam("/uwsim/wind/y", windSpeed*windWithValue.y());
 
   float depth = config.depth;
   //while (arguments->read("--depth", depth));
@@ -166,6 +173,7 @@ bool SceneBuilder::loadScene(ConfigFile config)
   for (int i = 0; i < nvehicle; i++)
   {
     Vehicle vehicle = config.vehicles.front();
+    std::cerr<<"\n ------------> vehicle "<<i<<" / "<< nvehicle<< " links.size: "<<vehicle.nlinks;
     boost::shared_ptr < SimulatedIAUV > siauv(new SimulatedIAUV(this, vehicle));
     iauvFile.push_back(siauv);
     config.vehicles.pop_front();
@@ -274,6 +282,9 @@ bool SceneBuilder::loadScene(ConfigFile config)
     if (rosInterface.type == ROSInterfaceInfo::ROSTwistToPAT)
       iface = boost::shared_ptr < ROSTwistToPAT
           > (new ROSTwistToPAT(root, rosInterface.topic, rosInterface.targetName));
+
+    if (rosInterface.type == ROSInterfaceInfo::OceanSurfaceToROSOceanVehicle)
+      iface = boost::shared_ptr < OceanSurfaceToROSOceanVehicle > (new OceanSurfaceToROSOceanVehicle(root, rosInterface.targetName, rosInterface.linkName, rosInterface.topic, rosInterface.rate, scene->getOceanScene()));
 
     if (rosInterface.type == ROSInterfaceInfo::PATToROSOdom)
       iface = boost::shared_ptr < PATToROSOdom
@@ -524,7 +535,10 @@ bool SceneBuilder::loadScene(ConfigFile config)
     }
 
     if (iface)
+    {
       ROSInterfaces.push_back(iface);
+	std::cerr<<"\n iface not null interfaceCount: "<<ROSInterfaces.size();
+    }
     config.ROSInterfaces.pop_front();
   }
   //root->addChild(physics.debugDrawer.getSceneGraph());

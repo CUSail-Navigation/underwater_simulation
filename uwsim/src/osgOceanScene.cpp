@@ -397,7 +397,10 @@ osg::Node* osgOceanScene::addObject(osg::Transform *transform, std::string filen
       std::string(SIMULATOR_DATA_PATH) + std::string("/terrain"));
   osgDB::Registry::instance()->getDataFilePathList().push_back(
       std::string(UWSIM_ROOT_PATH) + std::string("/data/shaders"));
-  osg::ref_ptr < osg::Node > object = osgDB::readNodeFile(filename);
+
+  osgDB::ReaderWriter::ReaderWriter::Options* options = new osgDB::ReaderWriter::ReaderWriter::Options; 
+  options->setOptionString("noRotation");
+  osg::ref_ptr < osg::Node > object = osgDB::readNodeFile(filename, options);
 
   if (!object.valid())
   {

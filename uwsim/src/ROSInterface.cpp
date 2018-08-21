@@ -67,11 +67,12 @@ ROSOdomToPAT::ROSOdomToPAT(osg::Group *rootNode, std::string topic, std::string 
 
 void ROSOdomToPAT::createSubscriber(ros::NodeHandle &nh)
 {
-  ROS_INFO("ROSOdomToPAT subscriber on topic %s", topic.c_str());
+std::cerr<<"######ROSOdomToPAT subscriber on topic "<< topic.c_str();
+  ROS_INFO("######ROSOdomToPAT subscriber on topic %s", topic.c_str());
   sub_ = nh.subscribe < nav_msgs::Odometry > (topic, 10, &ROSOdomToPAT::processData, this);
   if (sub_ == ros::Subscriber())
   {
-    ROS_ERROR("ROSOdomToPAT::createSubscriber cannot subscribe to topic %s", topic.c_str());
+    ROS_ERROR("######ROSOdomToPAT::createSubscriber cannot subscribe to topic %s", topic.c_str());
   }
 }
 
@@ -488,6 +489,7 @@ ROSPublisherInterface::ROSPublisherInterface(std::string topic, int publish_rate
 /* Thread code */
 void ROSPublisherInterface::run()
 {
+std::cerr<<"\n++++++++++++++++++++++++++ called run into ROSPublisherInterface!";
   ros::Duration(2).sleep();
   createPublisher (nh_);
 
@@ -567,6 +569,83 @@ void PATToROSOdom::publish()
 PATToROSOdom::~PATToROSOdom()
 {
 }
+
+
+OceanSurfaceToROSOceanVehicle::OceanSurfaceToROSOceanVehicle(osg::Group *rootNode, std::string vehicleName, std::string linkName, std::string topic, int rate, osgOcean::OceanScene* ptrOcean):
+ROSPublisherInterface(topic, rate)
+{
+	std::cerr<<"\n --------------- new OceanSurfaceToROSOceanVehicle. vehicle: " << vehicleName;
+	_oceanScene = ptrOcean;
+	_vehicleName = vehicleName;
+	_linkName = linkName;
+	findNodeVisitor findNode(vehicleName);
+	rootNode->accept(findNode);
+	vehicleNode = findNode.getFirst();
+	if(vehicleNode == NULL)
+	{
+		std::cerr<<"\n cannt find vehicle";
+	}
+	else
+	{
+		osg::Vec3f normal(0,0,1);
+
+		findNodeVisitor findLinkNode(linkName);
+		vehicleNode->accept(findLinkNode);
+		linkNode_= findLinkNode.getFirst();
+		if (linkNode_ != NULL)
+		{
+
+			boost::shared_ptr<osg::Matrix> mat2 = getWorldCoords(linkNode_);
+			osg::Vec3d pos = mat2->getTrans();
+			std::cerr<<"\n ----- "<<_vehicleName<<"["<<_linkName<<"]"<<linkNode_<<" pos link: ("<<pos.x()<<", "<<pos.y()<<", "<<pos.z()<<") linkNode_"<<linkNode_;
+		}
+		else
+		{
+			std::cerr<<"\n ----- ERROR ERROR: VEHICLE NODE NOT FOUND!!!!";
+		}
+	}
+	publish_rate =100;
+}
+
+void OceanSurfaceToROSOceanVehicle::createPublisher(ros::NodeHandle &nh)
+{
+	std::cerr<<"\n ======== OceanSurfaceToROSOceanVehicle PUBLISHER on topic"<<topic.c_str();
+	ROS_INFO("======== OceanSurfaceToROSOceanVehicle PUBLISHER on topic %s", topic.c_str());
+	pub_ = nh.advertise < geometry_msgs::Point > (topic, 1);
+}
+
+void OceanSurfaceToROSOceanVehicle::publish()
+{
+//std::cerr<<"\n ======== OceanSurfaceToROSOceanVehicle PUBLISHING "<<topic;
+	if (linkNode_ != NULL)
+	{
+
+		boost::shared_ptr<osg::Matrix> mat2 = getWorldCoords(linkNode_);
+		osg::Vec3d pos = mat2->getTrans();
+		osg::Vec3f normal(0,0,1);
+
+	    //osg::Matrixd mat = transform->getMatrix();
+		//osg::Vec3d pos = mat.getTrans();
+		//std::cerr<<"\n "<<_vehicleName<<"["<<_linkName<<"] pos "<<pos.x()<<", "<<pos.y()<<", "<<pos.z()<<")";
+		pos = osg::Vec3f(pos.x(), pos.y(), _oceanScene->getOceanSurfaceHeightAt(pos.x(), pos.y(), &normal));
+		geometry_msgs::Point surface;
+		surface.x = pos.x();
+		surface.y = pos.y();
+		surface.z = pos.z();
+		//std::cerr<<" -> pos "<<pos.x()<<", "<<pos.y()<<", "<<pos.z()<<")";
+
+		pub_.publish(surface);
+	}
+	//else
+		//std::cerr<<"\n OceanSurfaceToROSOceanVehicle with linkNode_ NULL";
+}
+
+OceanSurfaceToROSOceanVehicle::~OceanSurfaceToROSOceanVehicle()
+{
+
+}
+
+
 
 ImuToROSImu::ImuToROSImu(InertialMeasurementUnit *imu, std::string topic, int rate) :
     ROSPublisherInterface(topic, rate), imu_(imu)
