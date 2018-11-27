@@ -151,6 +151,8 @@ void ConfigFile::processOceanState(const xmlpp::Node* node)
       extractFloatChar(child, depth);
     else if (child->get_name() == "reflectionDamping")
       extractFloatChar(child, reflectionDamping);
+    else if (child->get_name() == "reflection")
+          extractFloatChar(child, reflection);
     else if (child->get_name() == "waveScale")
       extractFloatChar(child, waveScale);
     else if (child->get_name() == "isNotChoppy")
@@ -253,6 +255,45 @@ void ConfigFile::processSimParams(const xmlpp::Node* node)
       processShowTrajectory(child, aux);
       trajectories.push_back(aux);
     }
+    else if (child->get_name() == "groundTruth")
+	{
+		groundTruth.init();
+		xmlpp::Node::NodeList list = child->get_children();
+		for (xmlpp::Node::NodeList::iterator iter = list.begin(); iter != list.end(); ++iter)
+		{
+			const xmlpp::Node* grandchild = dynamic_cast<const xmlpp::Node*>(*iter);
+			if (grandchild->get_name() == "imageLocation")
+				extractStringChar(grandchild , groundTruth.imageLocation);
+			if (grandchild->get_name() == "obstacleName")
+				extractStringChar(grandchild , groundTruth.obstacleName);
+			else if (grandchild->get_name() == "type")
+			{
+				std::string type;
+				extractStringChar(grandchild, type);
+				if (type.compare("save")==0)
+					groundTruth.save=true;
+				else if (type.compare("obstacleDetection")==0)
+					groundTruth.obstacleDetection=true;
+			}
+			else if (grandchild->get_name() == "gt_shader")
+			{
+				int enableGT_shader;
+				extractIntChar(grandchild, enableGT_shader);
+				if (enableGT_shader != 0 && enableGT_shader != 1)
+				{
+					groundTruth.gt_shader = false;
+				}
+				else
+				{
+					if (enableGT_shader == 1)
+						groundTruth.gt_shader = true;
+					if (enableGT_shader == 0)
+						groundTruth.gt_shader = false;
+				}
+
+			}
+		}
+	}
     else if (child->get_name() == "lightRate")
       extractFloatChar(child, lightRate);
   }

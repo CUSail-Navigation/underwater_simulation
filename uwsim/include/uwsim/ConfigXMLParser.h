@@ -383,6 +383,22 @@ struct ShowTrajectory
   }
 };
 
+struct GroundTruth
+{
+  std::string imageLocation;
+  std::string obstacleName;
+  bool save;
+  bool obstacleDetection;
+  bool gt_shader;
+  void init()
+  {
+	gt_shader=false;
+    save = false;
+    obstacleDetection = false;
+    imageLocation = "~/Pictures/groundTruth/";
+  }
+};
+
 struct PhysicsConfig
 {
  typedef enum
@@ -452,7 +468,7 @@ public:
   void postprocessVehicle(Vehicle &vehicle);
 
 public:
-  double windx, windy, windSpeed, depth, reflectionDamping, waveScale, choppyFactor, crestFoamHeight,
+  double windx, windy, windSpeed, depth, reflectionDamping, reflection, waveScale, choppyFactor, crestFoamHeight,
          oceanSurfaceHeight, fogDensity, lightRate;
   int isNotChoppy, disableShaders, eye_in_hand, freeMotion, resw, resh, enablePhysics;
   string arm, vehicleToTrack;
@@ -464,7 +480,7 @@ public:
   list<ROSInterfaceInfo> ROSPhysInterfaces; //Physics interfaces are loaded after physics
   list<ShowTrajectory> trajectories;
   PhysicsConfig physicsConfig;
-
+  GroundTruth groundTruth;
 
   ConfigFile(const std::string &fName);
 };

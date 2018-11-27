@@ -127,6 +127,10 @@ bool SceneBuilder::loadScene(ConfigFile config)
   //Initialize ocean scene.
   scene = new osgOceanScene(config.offsetp, config.offsetr, windDirection, windSpeed, depth, reflectionDamping, scale,
                             isChoppy, choppyFactor, crestFoamHeight, false, "terrain");
+	scene->getOceanScene()->enableSave(config.groundTruth.save);
+	scene->getOceanScene()->enableObstacleDetection(config.groundTruth.obstacleDetection, config.groundTruth.imageLocation, config.groundTruth.obstacleName);
+	scene->getOceanScene()->enableReflections(config.reflection);
+	scene->getOceanScene()->enable_gt_shader(config.groundTruth.gt_shader);
 
   if (disableShaders)
   {
@@ -147,7 +151,12 @@ bool SceneBuilder::loadScene(ConfigFile config)
   else //Use UWSim default scene shader
   {
    static const char model_vertex[] = "default_scene.vert";
-   static const char model_fragment[] = "default_scene.frag";
+   static char model_fragment[] = "default_scene.frag";
+   if (config.groundTruth.gt_shader == true)
+   {
+      std::string myStr = "default_scen2.frag";
+      strcpy(model_fragment, myStr.c_str());
+   }
    osg::Program* program = osgOcean::ShaderManager::instance().createProgram("object_shader", model_vertex,model_fragment, "", "");
    scene->getOceanScene()->setDefaultSceneShader(program);
 
