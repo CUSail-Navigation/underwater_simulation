@@ -1525,6 +1525,7 @@ ConfigFile::ConfigFile(const std::string &fName)
   enablePhysics = 0;
   lightRate=1.0;
   physicsConfig.init();
+  groundTruth.init();
   try
   {
     xmlpp::DomParser parser;

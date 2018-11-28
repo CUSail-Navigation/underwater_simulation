@@ -131,6 +131,9 @@ bool SceneBuilder::loadScene(ConfigFile config)
 	scene->getOceanScene()->enableObstacleDetection(config.groundTruth.obstacleDetection, config.groundTruth.imageLocation, config.groundTruth.obstacleName);
 	scene->getOceanScene()->enableReflections(config.reflection);
 	scene->getOceanScene()->enable_gt_shader(config.groundTruth.gt_shader);
+	std::cerr<<"\n ------------------------------------------------------------------";
+	std::cerr<<"\n -------------------- gt_shader: "<<config.groundTruth.gt_shader;
+	std::cerr<<"\n ------------------------------------------------------------------";
 
   if (disableShaders)
   {
