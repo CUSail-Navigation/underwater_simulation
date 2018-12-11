@@ -489,8 +489,8 @@ ROSPublisherInterface::ROSPublisherInterface(std::string topic, int publish_rate
 /* Thread code */
 void ROSPublisherInterface::run()
 {
-std::cerr<<"\n++++++++++++++++++++++++++ called run into ROSPublisherInterface!";
-  ros::Duration(2).sleep();
+  //std::cerr<<"\n++++++++++++++++++++++++++ called run into ROSPublisherInterface!";
+  ros::Duration(0.01).sleep();
   createPublisher (nh_);
 
   ros::Rate rate(publish_rate);
