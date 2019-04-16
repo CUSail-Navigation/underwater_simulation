@@ -604,7 +604,7 @@ ROSPublisherInterface(topic, rate)
 			std::cerr<<"\n ----- ERROR ERROR: VEHICLE NODE NOT FOUND!!!!";
 		}
 	}
-	publish_rate =100;
+	publish_rate =50;
 }
 
 void OceanSurfaceToROSOceanVehicle::createPublisher(ros::NodeHandle &nh)
