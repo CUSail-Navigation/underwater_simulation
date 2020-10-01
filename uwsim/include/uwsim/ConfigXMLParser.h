@@ -458,10 +458,10 @@ public:
 
   void processGeometry(urdf::Geometry * geometry, Geometry * geom);
   void processPose(urdf::Pose pose, double position[3], double rpy[3], double quat[4]);
-  void processVisual(boost::shared_ptr<const urdf::Visual> visual, Link &link,
+  void processVisual(std::shared_ptr<const urdf::Visual> visual, Link &link,
                      std::map<std::string, Material> &materials);
-  void processJoint(boost::shared_ptr<const urdf::Joint> joint, Joint &jointVehicle, int parentLink, int childLink);
-  int processLink(boost::shared_ptr<const urdf::Link> link, Vehicle &vehicle, int nlink, int njoint,
+  void processJoint(std::shared_ptr<const urdf::Joint> joint, Joint &jointVehicle, int parentLink, int childLink);
+  int processLink(std::shared_ptr<const urdf::Link> link, Vehicle &vehicle, int nlink, int njoint,
                   std::map<std::string, Material> &materials); //returns current link number
   int processURDFFile(string file, Vehicle &vehicle);
 
